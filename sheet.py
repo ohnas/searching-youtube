@@ -69,20 +69,21 @@ def read_value():
         return values[0][0]
 
 
-def write_values():
+def write_values(values):
     creds = authorize_credentials()
-    range_name = "test!A4:F4"
+    last_row_number = get_last_row()
+    range_name = f"test!{last_row_number}:{last_row_number}"
     service = build("sheets", "v4", credentials=creds)
-    values = [
-        [
-            "hello",
-            "world",
-            '=IMAGE("https://i.ytimg.com/vi/wv4f4zY2Mm4/default.jpg",3)',
-            "myYoutube",
-            "2024-01-05",
-            "texttext",
-        ]
-    ]
+    # values = [
+    #     [
+    #         "hello",
+    #         "world",
+    #         '=IMAGE("https://i.ytimg.com/vi/wv4f4zY2Mm4/default.jpg",3)',
+    #         "myYoutube",
+    #         "2024-01-05",
+    #         "texttext",
+    #     ]
+    # ]
     data = [
         {"range": range_name, "values": values},
     ]
