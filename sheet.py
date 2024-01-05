@@ -28,9 +28,30 @@ def authorize_credentials():
     return creds
 
 
+def get_last_row():
+    creds = authorize_credentials()
+    service = build("sheets", "v4", credentials=creds)
+    range_name = "test"
+
+    # Google Sheet에서 값 읽기
+    sheet = service.spreadsheets()
+    result = (
+        sheet.values()
+        .get(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=range_name)
+        .execute()
+    )
+    values = result.get("values", [])
+
+    if not values:
+        print("No data found.")
+    else:
+        last_row = len(values)  # 값이 있는 마지막 행의 번호
+        return last_row + 1
+
+
 def read_value():
     creds = authorize_credentials()
-    range_name = "test!A1"
+    range_name = "test!B1"
     service = build("sheets", "v4", credentials=creds)
     sheet = service.spreadsheets()
     result = (
@@ -42,14 +63,34 @@ def read_value():
         .execute()
     )
     values = result.get("values", [])
-
     if not values:
         print("No data found.")
     else:
-        for row in values:
-            # A1 셀 값 출력
-            print(row[0])
+        return values[0][0]
 
 
 def write_values():
-    pass
+    creds = authorize_credentials()
+    range_name = "test!A4:F4"
+    service = build("sheets", "v4", credentials=creds)
+    values = [
+        [
+            "hello",
+            "world",
+            '=IMAGE("https://i.ytimg.com/vi/wv4f4zY2Mm4/default.jpg",3)',
+            "myYoutube",
+            "2024-01-05",
+            "texttext",
+        ]
+    ]
+    data = [
+        {"range": range_name, "values": values},
+    ]
+    body = {"valueInputOption": "USER_ENTERED", "data": data}
+    result = (
+        service.spreadsheets()
+        .values()
+        .batchUpdate(spreadsheetId=SAMPLE_SPREADSHEET_ID, body=body)
+        .execute()
+    )
+    print(result)
