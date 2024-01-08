@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
 from googleapiclient.discovery import build
-from sheet import read_value
+from sheet import read_value, write_values
 
 load_dotenv()
 
@@ -20,7 +20,7 @@ youtube = build(
 request = youtube.search().list(
     part="id,snippet",
     q=QUERY,
-    maxResults=1,
+    maxResults=5,
     order="relevance",
     regionCode="KR",
     type="video",
@@ -28,14 +28,24 @@ request = youtube.search().list(
 )
 response = request.execute()
 
-# keyword = "아이폰"
-# captions = YouTubeTranscriptApi.get_transcript(video_id="rCqPL63APuc", languages=["ko"])
-# print(len(captions))
-
-# filter_captions = []
-# for caption in captions:
-#     if keyword in caption["text"]:
-#         filter_captions.append(caption)
-
-# print(filter_captions)
-# print(len(filter_captions))
+for item in response["items"]:
+    values = []
+    inside_values = []
+    inside_values.append(item["snippet"]["title"])
+    inside_values.append(item["snippet"]["description"])
+    inside_values.append(
+        f'=IMAGE("{item["snippet"]["thumbnails"]["default"]["url"]}",3)'
+    )
+    inside_values.append(item["snippet"]["channelTitle"])
+    inside_values.append(item["snippet"]["publishTime"])
+    captions = YouTubeTranscriptApi.get_transcript(
+        video_id=item["id"]["videoId"], languages=["ko"]
+    )
+    for caption in captions:
+        if QUERY in caption["text"]:
+            inside_values.append(caption["text"])
+            inside_values.append(
+                f'https://www.youtube.com/watch?v={item["id"]["videoId"]}&t={int(caption["start"])}'
+            )
+    values.append(inside_values)
+    write_values(values)
