@@ -1,4 +1,5 @@
 import os
+from itertools import zip_longest
 from dotenv import load_dotenv
 from youtube_transcript_api import YouTubeTranscriptApi
 from googleapiclient.discovery import build
@@ -28,8 +29,8 @@ request = youtube.search().list(
 )
 response = request.execute()
 
+values = []
 for item in response["items"]:
-    values = []
     inside_values = []
     inside_values.append(item["snippet"]["title"])
     inside_values.append(item["snippet"]["description"])
@@ -48,4 +49,6 @@ for item in response["items"]:
                 f'https://www.youtube.com/watch?v={item["id"]["videoId"]}&t={int(caption["start"])}'
             )
     values.append(inside_values)
-    write_values(values)
+
+transposed_values = list(zip_longest(*values, fillvalue=""))
+write_values(transposed_values)

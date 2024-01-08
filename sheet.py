@@ -51,7 +51,7 @@ def get_last_row():
 
 def read_value():
     creds = authorize_credentials()
-    range_name = "test!B1"
+    range_name = "test!A2"
     service = build("sheets", "v4", credentials=creds)
     sheet = service.spreadsheets()
     result = (
@@ -71,19 +71,8 @@ def read_value():
 
 def write_values(values):
     creds = authorize_credentials()
-    last_row_number = get_last_row()
-    range_name = f"test!{last_row_number}:{last_row_number}"
+    range_name = "test!C:G"
     service = build("sheets", "v4", credentials=creds)
-    # values = [
-    #     [
-    #         "hello",
-    #         "world",
-    #         '=IMAGE("https://i.ytimg.com/vi/wv4f4zY2Mm4/default.jpg",3)',
-    #         "myYoutube",
-    #         "2024-01-05",
-    #         "texttext",
-    #     ]
-    # ]
     data = [
         {"range": range_name, "values": values},
     ]
